@@ -1,8 +1,8 @@
 import json
 from sseclient import SSEClient as EventSource
-from elasticsearch import Elasticsearch
+from save_json import es_connect, save_json
 
-es = Elasticsearch([{'host':'localhost', 'port':9200}])
+es = es_connect()
 
 def fetch_changes():
     url = 'https://stream.wikimedia.org/v2/stream/recentchange'
@@ -13,11 +13,9 @@ def fetch_changes():
             except ValueError:
                 pass
             else:
-                #print('bot? {bot}, {user} edited {title}'.format(**change))
                 if change['bot'] == False:
-                    #print(json.dumps(change, indent=4))
-                    res = es.index(index="wiki", doc_type="change", body=change)
-                    print(res['result'])
+                    res = save_json(es, change)
+                    print(res)
 
 if __name__ == '__main__':
     fetch_changes()
